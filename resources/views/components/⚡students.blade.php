@@ -1,15 +1,29 @@
 <?php
 
 use Livewire\Component;
-
-new class extends Component
-{
-       public string $title = 'دانش‌آموزان آموزشگاه';
+use App\Models\Student;
+new class extends Component {
+    public string $title = 'دانش‌آموزان آموزشگاه';
+    public function getStudents()
+    {
+        return Student::all();
+    }
 };
 ?>
 
 <div>
-  <h1>{{ $title }}</h1>
+     <h1>{{ $title }}</h1>
 
-    <p>این اولین کامپوننت Livewire پروژه ماست </p>
+    <p>لیست دانش‌آموزان:</p>
+
+    <ul>
+        @foreach ($this->getStudents() as $student)
+            <li>
+                {{ $student->first_name }}
+                {{ $student->last_name }}
+                -
+                {{ $student->mobile }}
+            </li>
+        @endforeach
+    </ul>
 </div>
