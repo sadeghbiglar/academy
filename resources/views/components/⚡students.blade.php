@@ -8,6 +8,11 @@ new class extends Component {
     {
         return Student::all();
     }
+    public function render()
+{
+    return view('components.⚡students')
+        ->layout('layouts.academy');
+}ّ
 };
 ?>
 
