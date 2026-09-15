@@ -4,12 +4,30 @@ use App\Models\Student;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 
-new #[Layout('layouts::academy')] class extends Component
-{
+new #[Layout('layouts::academy')]
+    class extends Component {
     public string $title = 'دانش‌آموزان آموزشگاه';
 
     public string $search = '';
 
+    public string $first_name = '';
+
+    public string $last_name = '';
+
+    public string $mobile = '';
+
+    public bool $showCreateModal = false;
+
+    public function saveStudent()
+    {
+        Student::create([
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
+            'mobile' => $this->mobile,
+        ]);
+
+        $this->showCreateModal = false;
+    }
     public function getStudents()
     {
         return Student::query()
@@ -34,29 +52,36 @@ new #[Layout('layouts::academy')] class extends Component
             </p>
         </div>
 
-        <x-button
-            label="دانش‌آموز جدید"
-            icon="o-plus"
-            class="btn-primary"
-        />
+        <x-button label="دانش‌آموز جدید" icon="o-plus" class="btn-primary" wire:click="$set('showCreateModal', true)" />
 
     </div>
+    <x-modal wire:model="showCreateModal" title="ثبت دانش‌آموز جدید" separator>
+        <div class="space-y-4">
 
-    <x-alert
-        title="مدیریت دانش‌آموزان"
-        description="در این بخش می‌توانید اطلاعات دانش‌آموزان آموزشگاه را مدیریت کنید."
-        icon="o-information-circle"
-        class="mb-6"
-    />
+            <x-input label="نام" wire:model="first_name" placeholder="مثلاً علی" />
+
+            <x-input label="نام خانوادگی" wire:model="last_name" placeholder="مثلاً رضایی" />
+
+            <x-input label="شماره موبایل" wire:model="mobile" placeholder="مثلاً 09123456789" />
+
+        </div>
+
+        <x-slot:actions>
+
+            <x-button label="انصراف" wire:click="$set('showCreateModal', false)" />
+
+            <x-button label="ثبت دانش‌آموز" icon="o-check" class="btn-primary" wire:click="saveStudent" />
+
+        </x-slot:actions>
+
+    </x-modal>
+    <x-alert title="مدیریت دانش‌آموزان" description="در این بخش می‌توانید اطلاعات دانش‌آموزان آموزشگاه را مدیریت کنید."
+        icon="o-information-circle" class="mb-6" />
 
     <div class="mb-6">
 
-        <x-input
-            label="جستجوی دانش‌آموز"
-            placeholder="نام، نام خانوادگی یا شماره موبایل..."
-            icon="o-magnifying-glass"
-            wire:model.live="search"
-        />
+        <x-input label="جستجوی دانش‌آموز" placeholder="نام، نام خانوادگی یا شماره موبایل..." icon="o-magnifying-glass"
+            wire:model.live="search" />
 
     </div>
 
