@@ -3,9 +3,10 @@
 use App\Models\Student;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
-
+use Mary\Traits\Toast;
 new #[Layout('layouts::academy')]
     class extends Component {
+    use Toast;
     public string $title = 'دانش‌آموزان آموزشگاه';
 
     public string $search = '';
@@ -33,12 +34,16 @@ new #[Layout('layouts::academy')]
             'last_name' => $this->last_name,
             'mobile' => $this->mobile,
         ]);
-$this->reset([
-    'first_name',
-    'last_name',
-    'mobile',
-]);
+        $this->reset([
+            'first_name',
+            'last_name',
+            'mobile',
+        ]);
         $this->showCreateModal = false;
+        $this->success(
+            'ثبت موفق',
+            'دانش‌آموز با موفقیت ثبت شد.'
+        );
     }
     public function getStudents()
     {
@@ -70,14 +75,11 @@ $this->reset([
     <x-modal wire:model="showCreateModal" title="ثبت دانش‌آموز جدید" separator>
         <div class="space-y-4">
 
-            <x-input label="نام" wire:model="first_name" placeholder="مثلاً علی"     error="first_name"
- />
+            <x-input label="نام" wire:model="first_name" placeholder="مثلاً علی" error="first_name" />
 
-            <x-input label="نام خانوادگی" wire:model="last_name" placeholder="مثلاً رضایی"     error="last_name"
-/>
+            <x-input label="نام خانوادگی" wire:model="last_name" placeholder="مثلاً رضایی" error="last_name" />
 
-            <x-input label="شماره موبایل" wire:model="mobile" placeholder="مثلاً 09123456789"     error="mobile"
-/>
+            <x-input label="شماره موبایل" wire:model="mobile" placeholder="مثلاً 09123456789" error="mobile" />
 
         </div>
 
