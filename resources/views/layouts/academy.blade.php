@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
 
@@ -8,7 +9,7 @@
     <title>
         {{ $title ?? 'آموزشگاه' }}
     </title>
-
+   
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @livewireStyles
@@ -22,7 +23,6 @@
             <h1 class="text-2xl font-bold">
                 🎓 آموزشگاه خصوصی
             </h1>
-
             <p class="text-sm opacity-60">
                 سامانه مدیریت آموزشگاه
             </p>
@@ -37,4 +37,5 @@
     @livewireScripts
 
 </body>
+
 </html>
