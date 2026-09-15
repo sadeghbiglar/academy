@@ -87,7 +87,8 @@ new #[Layout('layouts::academy')]
 
             <x-button label="انصراف" wire:click="$set('showCreateModal', false)" />
 
-            <x-button label="ثبت دانش‌آموز" icon="o-check" class="btn-primary" wire:click="saveStudent" />
+            <x-button label="ثبت دانش‌آموز" icon="o-check" class="btn-primary" wire:click="saveStudent"     wire:loading.attr="disabled"
+    wire:target="saveStudent"/>
 
         </x-slot:actions>
 
