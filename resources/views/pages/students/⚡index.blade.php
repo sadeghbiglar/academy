@@ -17,15 +17,27 @@ new #[Layout('layouts::academy')]
     public string $mobile = '';
 
     public bool $showCreateModal = false;
-
+    protected function rules(): array
+    {
+        return [
+            'first_name' => ['required', 'string', 'min:2', 'max:50'],
+            'last_name' => ['required', 'string', 'min:2', 'max:50'],
+            'mobile' => ['required', 'string', 'regex:/^09[0-9]{9}$/'],
+        ];
+    }
     public function saveStudent()
     {
+        $this->validate();
         Student::create([
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'mobile' => $this->mobile,
         ]);
-
+$this->reset([
+    'first_name',
+    'last_name',
+    'mobile',
+]);
         $this->showCreateModal = false;
     }
     public function getStudents()
@@ -58,11 +70,14 @@ new #[Layout('layouts::academy')]
     <x-modal wire:model="showCreateModal" title="ثبت دانش‌آموز جدید" separator>
         <div class="space-y-4">
 
-            <x-input label="نام" wire:model="first_name" placeholder="مثلاً علی" />
+            <x-input label="نام" wire:model="first_name" placeholder="مثلاً علی"     error="first_name"
+ />
 
-            <x-input label="نام خانوادگی" wire:model="last_name" placeholder="مثلاً رضایی" />
+            <x-input label="نام خانوادگی" wire:model="last_name" placeholder="مثلاً رضایی"     error="last_name"
+/>
 
-            <x-input label="شماره موبایل" wire:model="mobile" placeholder="مثلاً 09123456789" />
+            <x-input label="شماره موبایل" wire:model="mobile" placeholder="مثلاً 09123456789"     error="mobile"
+/>
 
         </div>
 
