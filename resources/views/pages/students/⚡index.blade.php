@@ -70,6 +70,16 @@ class extends Component {
     public ?int $deletingStudentId = null;
 
     public bool $showDeleteModal = false;
+
+    public ?int $viewingStudentId = null;
+    public bool $showDetailsModal = false;
+
+    public function viewStudent(int $id): void
+    {
+        $this->viewingStudentId = $id;
+
+        $this->showDetailsModal = true;
+    }
     protected function rules(): array
     {
         return [
@@ -682,6 +692,212 @@ class extends Component {
         </x-slot:actions>
 
     </x-modal>
+    <x-modal
+    wire:model="showDetailsModal"
+    title="جزئیات دانش‌آموز"
+    separator
+    class="backdrop-blur"
+>
+    @php
+        $student = $viewingStudentId
+            ? \App\Models\Student::find($viewingStudentId)
+            : null;
+    @endphp
+
+    @if ($student)
+        <div class="space-y-6">
+
+            {{-- اطلاعات هویتی --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    اطلاعات هویتی
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div>
+                        <span class="text-sm opacity-60">نام</span>
+                        <p class="font-medium">
+                            {{ $student->first_name }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-sm opacity-60">نام خانوادگی</span>
+                        <p class="font-medium">
+                            {{ $student->last_name }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-sm opacity-60">کد ملی</span>
+                        <p class="font-medium">
+                            {{ $student->national_code ?: '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-sm opacity-60">نام پدر</span>
+                        <p class="font-medium">
+                            {{ $student->father_name ?: '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-sm opacity-60">تاریخ تولد</span>
+                        <p class="font-medium">
+                            {{ $student->birth_date?->format('Y/m/d') ?? '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-sm opacity-60">جنسیت</span>
+                        <p class="font-medium">
+                            @if ($student->gender === 'male')
+                                پسر
+                            @elseif ($student->gender === 'female')
+                                دختر
+                            @else
+                                —
+                            @endif
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- اطلاعات تماس --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    اطلاعات تماس
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div>
+                        <span class="text-sm opacity-60">موبایل</span>
+                        <p class="font-medium">
+                            {{ $student->mobile ?: '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-sm opacity-60">تلفن ثابت</span>
+                        <p class="font-medium">
+                            {{ $student->phone ?: '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-sm opacity-60">ایمیل</span>
+                        <p class="font-medium">
+                            {{ $student->email ?: '—' }}
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- اطلاعات سرپرست --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    اطلاعات سرپرست
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div>
+                        <span class="text-sm opacity-60">نام سرپرست</span>
+                        <p class="font-medium">
+                            {{ $student->guardian_name ?: '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-sm opacity-60">موبایل سرپرست</span>
+                        <p class="font-medium">
+                            {{ $student->guardian_mobile ?: '—' }}
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- اطلاعات محل سکونت --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    اطلاعات محل سکونت
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div>
+                        <span class="text-sm opacity-60">استان</span>
+                        <p class="font-medium">
+                            {{ $student->province ?: '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-sm opacity-60">شهر</span>
+                        <p class="font-medium">
+                            {{ $student->city ?: '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-sm opacity-60">کد پستی</span>
+                        <p class="font-medium">
+                            {{ $student->postal_code ?: '—' }}
+                        </p>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <span class="text-sm opacity-60">آدرس</span>
+                        <p class="font-medium leading-7">
+                            {{ $student->address ?: '—' }}
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- اطلاعات سیستم --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    اطلاعات ثبت
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div>
+                        <span class="text-sm opacity-60">تاریخ ثبت</span>
+                        <p class="font-medium">
+                            {{ $student->created_at?->format('Y/m/d') ?? '—' }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-sm opacity-60">آخرین ویرایش</span>
+                        <p class="font-medium">
+                            {{ $student->updated_at?->format('Y/m/d') ?? '—' }}
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    @endif
+
+    <x-slot:actions>
+        <x-button
+            label="بستن"
+            wire:click="$set('showDetailsModal', false)"
+        />
+    </x-slot:actions>
+
+</x-modal>
     <x-alert title="مدیریت دانش‌آموزان" description="در این بخش می‌توانید اطلاعات دانش‌آموزان آموزشگاه را مدیریت کنید."
         icon="o-information-circle" class="mb-6" />
 
@@ -732,6 +948,11 @@ class extends Component {
                     hover>
                     @scope('actions', $student)
                     <div class="flex items-center gap-1">
+                        <x-button
+                            icon="o-eye"
+                            class="btn-sm btn-ghost"
+                            wire:click="viewStudent({{ $student->id }})"
+                            aria-label="مشاهده" />
                         <x-button
                             icon="o-pencil"
                             class="btn-sm btn-ghost"
