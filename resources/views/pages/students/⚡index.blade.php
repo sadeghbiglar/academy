@@ -15,11 +15,28 @@ class extends Component {
 
     public string $search = '';
 
+    // اطلاعات هویتی
     public string $first_name = '';
-
     public string $last_name = '';
+    public string $national_code = '';
+    public string $father_name = '';
+    public string $birth_date = '';
+    public string $gender = '';
 
+    // اطلاعات تماس
     public string $mobile = '';
+    public string $phone = '';
+    public string $email = '';
+
+    // اطلاعات سرپرست
+    public string $guardian_name = '';
+    public string $guardian_mobile = '';
+
+    // اطلاعات محل سکونت
+    public string $province = '';
+    public string $city = '';
+    public string $address = '';
+    public string $postal_code = '';
 
     public bool $showCreateModal = false;
     public ?int $editingStudentId = null;
@@ -39,7 +56,22 @@ class extends Component {
         return [
             'first_name' => ['required', 'string', 'min:2', 'max:50'],
             'last_name' => ['required', 'string', 'min:2', 'max:50'],
+            'national_code' => ['required', 'string', 'size:10'],
+            'father_name' => ['required', 'string', 'min:2', 'max:50'],
+            'birth_date' => ['required', 'date'],
+            'gender' => ['required', 'in:male,female'],
+
             'mobile' => ['required', 'string', 'regex:/^09[0-9]{9}$/'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'email' => ['nullable', 'email', 'max:255'],
+
+            'guardian_name' => ['required', 'string', 'min:2', 'max:100'],
+            'guardian_mobile' => ['required', 'string', 'regex:/^09[0-9]{9}$/'],
+
+            'province' => ['required', 'string', 'max:50'],
+            'city' => ['required', 'string', 'max:50'],
+            'address' => ['required', 'string', 'max:1000'],
+            'postal_code' => ['nullable', 'string', 'size:10'],
         ];
     }
     public function saveStudent()
@@ -48,12 +80,39 @@ class extends Component {
         Student::create([
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
+            'national_code' => $this->national_code,
+            'father_name' => $this->father_name,
+            'birth_date' => $this->birth_date,
+            'gender' => $this->gender,
+
             'mobile' => $this->mobile,
+            'phone' => $this->phone,
+            'email' => $this->email,
+
+            'guardian_name' => $this->guardian_name,
+            'guardian_mobile' => $this->guardian_mobile,
+
+            'province' => $this->province,
+            'city' => $this->city,
+            'address' => $this->address,
+            'postal_code' => $this->postal_code,
         ]);
         $this->reset([
             'first_name',
             'last_name',
+            'national_code',
+            'father_name',
+            'birth_date',
+            'gender',
             'mobile',
+            'phone',
+            'email',
+            'guardian_name',
+            'guardian_mobile',
+            'province',
+            'city',
+            'address',
+            'postal_code',
         ]);
         $this->showCreateModal = false;
         $this->success(
@@ -149,7 +208,7 @@ class extends Component {
                     ->orWhere('last_name', 'like', '%' . $this->search . '%')
                     ->orWhere('mobile', 'like', '%' . $this->search . '%');
             })
-            ->paginate(3);
+            ->paginate(10);
 
         $students->getCollection()->transform(
             function ($student, $index) use ($students) {
@@ -181,13 +240,151 @@ class extends Component {
 
     </div>
     <x-modal wire:model="showCreateModal" title="ثبت دانش‌آموز جدید" separator>
-        <div class="space-y-4">
+        <div class="space-y-6">
 
-            <x-input label="نام" wire:model="first_name" placeholder="مثلاً علی" error="first_name" />
+            {{-- اطلاعات هویتی --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    اطلاعات هویتی
+                </h3>
 
-            <x-input label="نام خانوادگی" wire:model="last_name" placeholder="مثلاً رضایی" error="last_name" />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <x-input label="شماره موبایل" wire:model="mobile" placeholder="مثلاً 09123456789" error="mobile" />
+                    <x-input
+                        label="نام"
+                        wire:model="first_name"
+                        placeholder="مثلاً علی"
+                        error="first_name" />
+
+                    <x-input
+                        label="نام خانوادگی"
+                        wire:model="last_name"
+                        placeholder="مثلاً رضایی"
+                        error="last_name" />
+
+                    <x-input
+                        label="کد ملی"
+                        wire:model="national_code"
+                        placeholder="مثلاً 1234567890"
+                        error="national_code" />
+
+                    <x-input
+                        label="نام پدر"
+                        wire:model="father_name"
+                        placeholder="مثلاً محمد"
+                        error="father_name" />
+
+                    <x-input
+                        label="تاریخ تولد"
+                        type="date"
+                        wire:model="birth_date"
+                        error="birth_date" />
+
+                    <x-select
+                        label="جنسیت"
+                        wire:model="gender"
+                        :options="[
+                    ['id' => 'male', 'name' => 'پسر'],
+                    ['id' => 'female', 'name' => 'دختر'],
+                ]"
+                        option-value="id"
+                        option-label="name"
+                        placeholder="انتخاب جنسیت"
+                        error="gender" />
+
+                </div>
+            </div>
+
+            {{-- اطلاعات تماس --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    اطلاعات تماس
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <x-input
+                        label="شماره موبایل"
+                        wire:model="mobile"
+                        placeholder="مثلاً 09123456789"
+                        error="mobile" />
+
+                    <x-input
+                        label="تلفن ثابت"
+                        wire:model="phone"
+                        placeholder="مثلاً 02433445566"
+                        error="phone" />
+
+                    <x-input
+                        label="ایمیل"
+                        type="email"
+                        wire:model="email"
+                        placeholder="example@email.com"
+                        error="email" />
+
+                </div>
+            </div>
+
+            {{-- اطلاعات سرپرست --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    اطلاعات سرپرست
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <x-input
+                        label="نام سرپرست"
+                        wire:model="guardian_name"
+                        placeholder="مثلاً محمد رضایی"
+                        error="guardian_name" />
+
+                    <x-input
+                        label="موبایل سرپرست"
+                        wire:model="guardian_mobile"
+                        placeholder="مثلاً 09123456789"
+                        error="guardian_mobile" />
+
+                </div>
+            </div>
+
+            {{-- اطلاعات محل سکونت --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    اطلاعات محل سکونت
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <x-input
+                        label="استان"
+                        wire:model="province"
+                        placeholder="مثلاً زنجان"
+                        error="province" />
+
+                    <x-input
+                        label="شهر"
+                        wire:model="city"
+                        placeholder="مثلاً ابهر"
+                        error="city" />
+
+                    <x-input
+                        label="کد پستی"
+                        wire:model="postal_code"
+                        placeholder="مثلاً 4513712345"
+                        error="postal_code" />
+
+                    <div class="md:col-span-2">
+                        <x-textarea
+                            label="آدرس"
+                            wire:model="address"
+                            placeholder="آدرس کامل محل سکونت"
+                            error="address"
+                            rows="3" />
+                    </div>
+
+                </div>
+            </div>
 
         </div>
 
