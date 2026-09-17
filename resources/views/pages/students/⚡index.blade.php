@@ -284,32 +284,66 @@ public function students()
 
     <div class="bg-base-100 rounded-box shadow">
 
-    <x-table
-    :headers="$headers"
-    :rows="$this->students"
-    striped
->
-    @scope('actions', $student)
-        <div class="flex gap-1">
-
-            <x-button
-                icon="o-pencil"
-                class="btn-sm btn-ghost"
-                wire:click="editStudent({{ $student->id }})"
+@if ($this->students->isEmpty())
+    <div class="bg-base-100 rounded-box shadow p-10 text-center">
+        <div class="flex justify-center mb-4">
+            <x-icon
+                name="o-magnifying-glass"
+                class="w-12 h-12 opacity-30"
             />
-
-            <x-button
-                icon="o-trash"
-                class="btn-sm btn-ghost text-error"
-                wire:click="confirmDelete({{ $student->id }})"
-            />
-
         </div>
-    @endscope
-</x-table>
-<div class="mt-4">
-    {{ $this->students->links() }}
-</div>
+
+        <h3 class="text-lg font-bold">
+            دانش‌آموزی پیدا نشد
+        </h3>
+
+        <p class="text-sm opacity-60 mt-2">
+            @if ($search)
+                دانش‌آموزی با عبارت «{{ $search }}» پیدا نشد.
+            @else
+                هنوز هیچ دانش‌آموزی ثبت نشده است.
+            @endif
+        </p>
+
+        @if ($search)
+            <x-button
+                label="پاک کردن جستجو"
+                icon="o-x-mark"
+                class="btn-sm mt-4"
+                wire:click="$set('search', '')"
+            />
+        @endif
+    </div>
+@else
+    <div class="bg-base-100 rounded-box shadow">
+        <x-table
+            :headers="$headers"
+            :rows="$this->students"
+            striped
+        >
+            @scope('actions', $student)
+                <div class="flex gap-1">
+                    <x-button
+                        icon="o-pencil"
+                        class="btn-sm btn-ghost"
+                        wire:click="editStudent({{ $student->id }})"
+                    />
+
+                    <x-button
+                        icon="o-trash"
+                        class="btn-sm btn-ghost text-error"
+                        wire:click="confirmDelete({{ $student->id }})"
+                    />
+                </div>
+            @endscope
+        </x-table>
+    </div>
+
+    <div class="mt-4">
+        {{ $this->students->links() }}
+    </div>
+@endif
+
 </div>
 
 </div>
