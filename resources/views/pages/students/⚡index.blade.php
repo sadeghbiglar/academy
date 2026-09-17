@@ -283,9 +283,11 @@ class extends Component {
     }
     public array $headers = [
         ['key' => 'row_number', 'label' => '#'],
-        ['key' => 'first_name', 'label' => 'نام'],
-        ['key' => 'last_name', 'label' => 'نام خانوادگی'],
+        ['key' => 'full_name', 'label' => 'نام و نام خانوادگی'],
+        ['key' => 'national_code', 'label' => 'کد ملی'],
+        ['key' => 'gender', 'label' => 'جنسیت'],
         ['key' => 'mobile', 'label' => 'موبایل'],
+        ['key' => 'birth_date', 'label' => 'تاریخ تولد'],
         ['key' => 'created_at', 'label' => 'تاریخ ثبت'],
     ];
     public function updatedSearch(): void
@@ -307,6 +309,8 @@ class extends Component {
         $students->getCollection()->transform(
             function ($student, $index) use ($students) {
                 $student->row_number = $students->firstItem() + $index;
+
+                $student->full_name = "{$student->first_name} {$student->last_name}";
 
                 return $student;
             }
@@ -693,18 +697,17 @@ class extends Component {
 
     </x-modal>
     <x-modal
-    wire:model="showDetailsModal"
-    title="جزئیات دانش‌آموز"
-    separator
-    class="backdrop-blur"
->
-    @php
+        wire:model="showDetailsModal"
+        title="جزئیات دانش‌آموز"
+        separator
+        class="backdrop-blur">
+        @php
         $student = $viewingStudentId
-            ? \App\Models\Student::find($viewingStudentId)
-            : null;
-    @endphp
+        ? \App\Models\Student::find($viewingStudentId)
+        : null;
+        @endphp
 
-    @if ($student)
+        @if ($student)
         <div class="space-y-6">
 
             {{-- اطلاعات هویتی --}}
@@ -754,11 +757,11 @@ class extends Component {
                         <span class="text-sm opacity-60">جنسیت</span>
                         <p class="font-medium">
                             @if ($student->gender === 'male')
-                                پسر
+                            پسر
                             @elseif ($student->gender === 'female')
-                                دختر
+                            دختر
                             @else
-                                —
+                            —
                             @endif
                         </p>
                     </div>
@@ -888,16 +891,15 @@ class extends Component {
             </div>
 
         </div>
-    @endif
+        @endif
 
-    <x-slot:actions>
-        <x-button
-            label="بستن"
-            wire:click="$set('showDetailsModal', false)"
-        />
-    </x-slot:actions>
+        <x-slot:actions>
+            <x-button
+                label="بستن"
+                wire:click="$set('showDetailsModal', false)" />
+        </x-slot:actions>
 
-</x-modal>
+    </x-modal>
     <x-alert title="مدیریت دانش‌آموزان" description="در این بخش می‌توانید اطلاعات دانش‌آموزان آموزشگاه را مدیریت کنید."
         icon="o-information-circle" class="mb-6" />
 
@@ -946,6 +948,23 @@ class extends Component {
                     :rows="$this->students"
                     striped
                     hover>
+                    @scope('cell_gender', $student)
+                    @if ($student->gender === 'male')
+                    پسر
+                    @elseif ($student->gender === 'female')
+                    دختر
+                    @else
+                    —
+                    @endif
+                    @endscope
+
+                    @scope('cell_birth_date', $student)
+                    {{ $student->birth_date?->format('Y/m/d') ?? '—' }}
+                    @endscope
+
+                    @scope('cell_created_at', $student)
+                    {{ $student->created_at?->format('Y/m/d') ?? '—' }}
+                    @endscope
                     @scope('actions', $student)
                     <div class="flex items-center gap-1">
                         <x-button
@@ -966,9 +985,7 @@ class extends Component {
                             aria-label="حذف" />
                     </div>
                     @endscope
-                    @scope('cell_created_at', $student)
-                    {{ $student->created_at->format('Y/m/d') }}
-                    @endscope
+                   
                 </x-table>
             </div>
         </div>
