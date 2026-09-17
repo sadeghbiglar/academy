@@ -39,15 +39,34 @@ class extends Component {
     public string $postal_code = '';
 
     public bool $showCreateModal = false;
-    public ?int $editingStudentId = null;
 
+    // ویرایش دانش‌آموز
+    public ?int $editingStudentId = null;
     public bool $showEditModal = false;
 
+    // اطلاعات هویتی
     public string $edit_first_name = '';
-
     public string $edit_last_name = '';
+    public string $edit_national_code = '';
+    public string $edit_father_name = '';
+    public string $edit_birth_date = '';
+    public string $edit_gender = '';
 
+    // اطلاعات تماس
     public string $edit_mobile = '';
+    public string $edit_phone = '';
+    public string $edit_email = '';
+
+    // اطلاعات سرپرست
+    public string $edit_guardian_name = '';
+    public string $edit_guardian_mobile = '';
+
+    // اطلاعات محل سکونت
+    public string $edit_province = '';
+    public string $edit_city = '';
+    public string $edit_address = '';
+    public string $edit_postal_code = '';
+
     public ?int $deletingStudentId = null;
 
     public bool $showDeleteModal = false;
@@ -126,9 +145,28 @@ class extends Component {
 
         $this->editingStudentId = $student->id;
 
+        // اطلاعات هویتی
         $this->edit_first_name = $student->first_name;
         $this->edit_last_name = $student->last_name;
+        $this->edit_national_code = $student->national_code ?? '';
+        $this->edit_father_name = $student->father_name ?? '';
+        $this->edit_birth_date = $student->birth_date?->format('Y-m-d') ?? '';
+        $this->edit_gender = $student->gender ?? '';
+
+        // اطلاعات تماس
         $this->edit_mobile = $student->mobile;
+        $this->edit_phone = $student->phone ?? '';
+        $this->edit_email = $student->email ?? '';
+
+        // اطلاعات سرپرست
+        $this->edit_guardian_name = $student->guardian_name ?? '';
+        $this->edit_guardian_mobile = $student->guardian_mobile ?? '';
+
+        // اطلاعات محل سکونت
+        $this->edit_province = $student->province ?? '';
+        $this->edit_city = $student->city ?? '';
+        $this->edit_address = $student->address ?? '';
+        $this->edit_postal_code = $student->postal_code ?? '';
 
         $this->showEditModal = true;
     }
@@ -137,7 +175,22 @@ class extends Component {
         $this->validate([
             'edit_first_name' => ['required', 'string', 'min:2', 'max:50'],
             'edit_last_name' => ['required', 'string', 'min:2', 'max:50'],
+            'edit_national_code' => ['required', 'string', 'size:10'],
+            'edit_father_name' => ['required', 'string', 'min:2', 'max:50'],
+            'edit_birth_date' => ['required', 'date'],
+            'edit_gender' => ['required', 'in:male,female'],
+
             'edit_mobile' => ['required', 'string', 'regex:/^09[0-9]{9}$/'],
+            'edit_phone' => ['nullable', 'string', 'max:20'],
+            'edit_email' => ['nullable', 'email', 'max:255'],
+
+            'edit_guardian_name' => ['required', 'string', 'min:2', 'max:100'],
+            'edit_guardian_mobile' => ['required', 'string', 'regex:/^09[0-9]{9}$/'],
+
+            'edit_province' => ['required', 'string', 'max:50'],
+            'edit_city' => ['required', 'string', 'max:50'],
+            'edit_address' => ['required', 'string', 'max:1000'],
+            'edit_postal_code' => ['nullable', 'string', 'size:10'],
         ]);
 
         $student = Student::findOrFail($this->editingStudentId);
@@ -145,7 +198,22 @@ class extends Component {
         $student->update([
             'first_name' => $this->edit_first_name,
             'last_name' => $this->edit_last_name,
+            'national_code' => $this->edit_national_code,
+            'father_name' => $this->edit_father_name,
+            'birth_date' => $this->edit_birth_date,
+            'gender' => $this->edit_gender,
+
             'mobile' => $this->edit_mobile,
+            'phone' => $this->edit_phone,
+            'email' => $this->edit_email,
+
+            'guardian_name' => $this->edit_guardian_name,
+            'guardian_mobile' => $this->edit_guardian_mobile,
+
+            'province' => $this->edit_province,
+            'city' => $this->edit_city,
+            'address' => $this->edit_address,
+            'postal_code' => $this->edit_postal_code,
         ]);
 
         $this->showEditModal = false;
@@ -161,9 +229,25 @@ class extends Component {
     {
         $this->reset([
             'editingStudentId',
+
             'edit_first_name',
             'edit_last_name',
+            'edit_national_code',
+            'edit_father_name',
+            'edit_birth_date',
+            'edit_gender',
+
             'edit_mobile',
+            'edit_phone',
+            'edit_email',
+
+            'edit_guardian_name',
+            'edit_guardian_mobile',
+
+            'edit_province',
+            'edit_city',
+            'edit_address',
+            'edit_postal_code',
         ]);
     }
     public function confirmDelete(int $id): void
@@ -402,25 +486,151 @@ class extends Component {
         wire:model="showEditModal"
         title="ویرایش دانش‌آموز"
         separator>
-        <div class="space-y-4">
+        <div class="space-y-6">
 
-            <x-input
-                label="نام"
-                wire:model="edit_first_name"
-                placeholder="مثلاً علی"
-                error="edit_first_name" />
+            {{-- اطلاعات هویتی --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    اطلاعات هویتی
+                </h3>
 
-            <x-input
-                label="نام خانوادگی"
-                wire:model="edit_last_name"
-                placeholder="مثلاً رضایی"
-                error="edit_last_name" />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <x-input
-                label="شماره موبایل"
-                wire:model="edit_mobile"
-                placeholder="مثلاً 09123456789"
-                error="edit_mobile" />
+                    <x-input
+                        label="نام"
+                        wire:model="edit_first_name"
+                        placeholder="مثلاً علی"
+                        error="edit_first_name" />
+
+                    <x-input
+                        label="نام خانوادگی"
+                        wire:model="edit_last_name"
+                        placeholder="مثلاً رضایی"
+                        error="edit_last_name" />
+
+                    <x-input
+                        label="کد ملی"
+                        wire:model="edit_national_code"
+                        placeholder="مثلاً 1234567890"
+                        error="edit_national_code" />
+
+                    <x-input
+                        label="نام پدر"
+                        wire:model="edit_father_name"
+                        placeholder="مثلاً محمد"
+                        error="edit_father_name" />
+
+                    <x-input
+                        label="تاریخ تولد"
+                        type="date"
+                        wire:model="edit_birth_date"
+                        error="edit_birth_date" />
+
+                    <x-select
+                        label="جنسیت"
+                        wire:model="edit_gender"
+                        :options="[
+                    ['id' => 'male', 'name' => 'پسر'],
+                    ['id' => 'female', 'name' => 'دختر'],
+                ]"
+                        option-value="id"
+                        option-label="name"
+                        placeholder="انتخاب جنسیت"
+                        error="edit_gender" />
+
+                </div>
+            </div>
+
+            {{-- اطلاعات تماس --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    اطلاعات تماس
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <x-input
+                        label="شماره موبایل"
+                        wire:model="edit_mobile"
+                        placeholder="مثلاً 09123456789"
+                        error="edit_mobile" />
+
+                    <x-input
+                        label="تلفن ثابت"
+                        wire:model="edit_phone"
+                        placeholder="مثلاً 02433445566"
+                        error="edit_phone" />
+
+                    <x-input
+                        label="ایمیل"
+                        type="email"
+                        wire:model="edit_email"
+                        placeholder="example@email.com"
+                        error="edit_email" />
+
+                </div>
+            </div>
+
+            {{-- اطلاعات سرپرست --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    اطلاعات سرپرست
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <x-input
+                        label="نام سرپرست"
+                        wire:model="edit_guardian_name"
+                        placeholder="مثلاً محمد رضایی"
+                        error="edit_guardian_name" />
+
+                    <x-input
+                        label="موبایل سرپرست"
+                        wire:model="edit_guardian_mobile"
+                        placeholder="مثلاً 09123456789"
+                        error="edit_guardian_mobile" />
+
+                </div>
+            </div>
+
+            {{-- اطلاعات محل سکونت --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    اطلاعات محل سکونت
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <x-input
+                        label="استان"
+                        wire:model="edit_province"
+                        placeholder="مثلاً زنجان"
+                        error="edit_province" />
+
+                    <x-input
+                        label="شهر"
+                        wire:model="edit_city"
+                        placeholder="مثلاً ابهر"
+                        error="edit_city" />
+
+                    <x-input
+                        label="کد پستی"
+                        wire:model="edit_postal_code"
+                        placeholder="مثلاً 4513712345"
+                        error="edit_postal_code" />
+
+                    <div class="md:col-span-2">
+                        <x-textarea
+                            label="آدرس"
+                            wire:model="edit_address"
+                            placeholder="آدرس کامل محل سکونت"
+                            error="edit_address"
+                            rows="3" />
+                    </div>
+
+                </div>
+            </div>
 
         </div>
 
