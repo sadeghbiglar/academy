@@ -18,6 +18,15 @@ new #[Layout('layouts::academy')]
     public string $mobile = '';
 
     public bool $showCreateModal = false;
+    public ?int $editingStudentId = null;
+
+public bool $showEditModal = false;
+
+public string $edit_first_name = '';
+
+public string $edit_last_name = '';
+
+public string $edit_mobile = '';
     protected function rules(): array
     {
         return [
@@ -45,6 +54,48 @@ new #[Layout('layouts::academy')]
             'دانش‌آموز با موفقیت ثبت شد.'
         );
     }
+    public function editStudent(int $id): void
+{
+    $student = Student::findOrFail($id);
+
+    $this->editingStudentId = $student->id;
+
+    $this->edit_first_name = $student->first_name;
+    $this->edit_last_name = $student->last_name;
+    $this->edit_mobile = $student->mobile;
+
+    $this->showEditModal = true;
+}
+public function updateStudent(): void
+{
+    $this->validate([
+        'edit_first_name' => ['required', 'string', 'min:2', 'max:50'],
+        'edit_last_name' => ['required', 'string', 'min:2', 'max:50'],
+        'edit_mobile' => ['required', 'string', 'regex:/^09[0-9]{9}$/'],
+    ]);
+
+    $student = Student::findOrFail($this->editingStudentId);
+
+    $student->update([
+        'first_name' => $this->edit_first_name,
+        'last_name' => $this->edit_last_name,
+        'mobile' => $this->edit_mobile,
+    ]);
+
+    $this->showEditModal = false;
+
+    $this->reset([
+        'editingStudentId',
+        'edit_first_name',
+        'edit_last_name',
+        'edit_mobile',
+    ]);
+
+    $this->success(
+        'ویرایش موفق',
+        'اطلاعات دانش‌آموز با موفقیت به‌روزرسانی شد.'
+    );
+}
     public function getStudents()
     {
         return Student::query()
@@ -93,6 +144,53 @@ new #[Layout('layouts::academy')]
         </x-slot:actions>
 
     </x-modal>
+    <x-modal
+    wire:model="showEditModal"
+    title="ویرایش دانش‌آموز"
+    separator
+>
+    <div class="space-y-4">
+
+        <x-input
+            label="نام"
+            wire:model="edit_first_name"
+            placeholder="مثلاً علی"
+            error="edit_first_name"
+        />
+
+        <x-input
+            label="نام خانوادگی"
+            wire:model="edit_last_name"
+            placeholder="مثلاً رضایی"
+            error="edit_last_name"
+        />
+
+        <x-input
+            label="شماره موبایل"
+            wire:model="edit_mobile"
+            placeholder="مثلاً 09123456789"
+            error="edit_mobile"
+        />
+
+    </div>
+
+    <x-slot:actions>
+
+        <x-button
+            label="انصراف"
+            wire:click="$set('showEditModal', false)"
+        />
+
+        <x-button
+            label="ذخیره تغییرات"
+            icon="o-check"
+            class="btn-primary"
+             wire:click="updateStudent"
+        />
+
+    </x-slot:actions>
+
+</x-modal>
     <x-alert title="مدیریت دانش‌آموزان" description="در این بخش می‌توانید اطلاعات دانش‌آموزان آموزشگاه را مدیریت کنید."
         icon="o-information-circle" class="mb-6" />
 
@@ -137,7 +235,13 @@ new #[Layout('layouts::academy')]
                             <td>
                                 {{ $student->mobile }}
                             </td>
-
+                            <td>
+                                <x-button
+    icon="o-pencil"
+    class="btn-sm btn-ghost"
+    wire:click="editStudent({{ $student->id }})"
+/>
+</td>
                         </tr>
 
                     @endforeach
