@@ -128,7 +128,7 @@ public function deleteStudent(): void
     );
 }
 public array $headers = [
-    ['key' => 'id', 'label' => '#'],
+    ['key' => 'row_number', 'label' => '#'],
     ['key' => 'first_name', 'label' => 'نام'],
     ['key' => 'last_name', 'label' => 'نام خانوادگی'],
     ['key' => 'mobile', 'label' => 'موبایل'],
@@ -137,10 +137,10 @@ public function updatedSearch(): void
 {
     $this->resetPage();
 }
-   #[Computed]
+ #[Computed]
 public function students()
 {
-    return Student::query()
+    $students = Student::query()
         ->where(function ($query) {
             $query
                 ->where('first_name', 'like', '%' . $this->search . '%')
@@ -148,6 +148,16 @@ public function students()
                 ->orWhere('mobile', 'like', '%' . $this->search . '%');
         })
         ->paginate(3);
+
+    $students->getCollection()->transform(
+        function ($student, $index) use ($students) {
+            $student->row_number = $students->firstItem() + $index;
+
+            return $student;
+        }
+    );
+
+    return $students;
 }
 };
 ?>
