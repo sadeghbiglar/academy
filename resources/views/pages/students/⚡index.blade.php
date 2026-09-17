@@ -214,6 +214,8 @@ public function deleteStudent(): void
             icon="o-check"
             class="btn-primary"
              wire:click="updateStudent"
+                 wire:loading.attr="disabled"
+    wire:target="updateStudent"
         />
 
     </x-slot:actions>
@@ -246,6 +248,8 @@ public function deleteStudent(): void
             icon="o-trash"
             class="btn-error"
              wire:click="deleteStudent"
+                wire:loading.attr="disabled"
+    wire:target="deleteStudent"
         />
 
     </x-slot:actions>
