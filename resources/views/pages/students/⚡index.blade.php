@@ -4,9 +4,12 @@ use App\Models\Student;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Mary\Traits\Toast;
+use Livewire\WithPagination;
+use Livewire\Attributes\Computed;
 new #[Layout('layouts::academy')]
     class extends Component {
     use Toast;
+    use WithPagination;
     public string $title = 'دانش‌آموزان آموزشگاه';
 
     public string $search = '';
@@ -124,14 +127,28 @@ public function deleteStudent(): void
         'دانش‌آموز با موفقیت حذف شد.'
     );
 }
-    public function getStudents()
-    {
-        return Student::query()
-            ->where('first_name', 'like', '%' . $this->search . '%')
-            ->orWhere('last_name', 'like', '%' . $this->search . '%')
-            ->orWhere('mobile', 'like', '%' . $this->search . '%')
-            ->get();
-    }
+public array $headers = [
+    ['key' => 'id', 'label' => '#'],
+    ['key' => 'first_name', 'label' => 'نام'],
+    ['key' => 'last_name', 'label' => 'نام خانوادگی'],
+    ['key' => 'mobile', 'label' => 'موبایل'],
+];
+public function updatedSearch(): void
+{
+    $this->resetPage();
+}
+   #[Computed]
+public function students()
+{
+    return Student::query()
+        ->where(function ($query) {
+            $query
+                ->where('first_name', 'like', '%' . $this->search . '%')
+                ->orWhere('last_name', 'like', '%' . $this->search . '%')
+                ->orWhere('mobile', 'like', '%' . $this->search . '%');
+        })
+        ->paginate(3);
+}
 };
 ?>
 <div class="p-6">
@@ -267,62 +284,32 @@ public function deleteStudent(): void
 
     <div class="bg-base-100 rounded-box shadow">
 
-        <div class="overflow-x-auto">
+    <x-table
+    :headers="$headers"
+    :rows="$this->students"
+    striped
+>
+    @scope('actions', $student)
+        <div class="flex gap-1">
 
-            <table class="table">
+            <x-button
+                icon="o-pencil"
+                class="btn-sm btn-ghost"
+                wire:click="editStudent({{ $student->id }})"
+            />
 
-                <thead>
-
-                    <tr>
-                        <th>#</th>
-                        <th>نام و نام خانوادگی</th>
-                        <th>موبایل</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    @foreach ($this->getStudents() as $student)
-
-                        <tr>
-
-                            <td>
-                                {{ $student->id }}
-                            </td>
-
-                            <td class="font-medium">
-                                {{ $student->first_name }}
-                                {{ $student->last_name }}
-                            </td>
-
-                            <td>
-                                {{ $student->mobile }}
-                            </td>
-                            <td>
-                                <x-button
-    icon="o-pencil"
-    class="btn-sm btn-ghost"
-    wire:click="editStudent({{ $student->id }})"
-/>
-</td>
-<td>
-    <x-button
-    icon="o-trash"
-    class="btn-sm btn-ghost text-error"
-    wire:click="confirmDelete({{ $student->id }})"
-/>
-</td>
-                        </tr>
-
-                    @endforeach
-
-                </tbody>
-
-            </table>
+            <x-button
+                icon="o-trash"
+                class="btn-sm btn-ghost text-error"
+                wire:click="confirmDelete({{ $student->id }})"
+            />
 
         </div>
-
-    </div>
+    @endscope
+</x-table>
+<div class="mt-4">
+    {{ $this->students->links() }}
+</div>
+</div>
 
 </div>
