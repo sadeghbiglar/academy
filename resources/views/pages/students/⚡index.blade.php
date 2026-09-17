@@ -315,29 +315,34 @@ public function students()
         @endif
     </div>
 @else
-    <div class="bg-base-100 rounded-box shadow">
+<div class="bg-base-100 rounded-box shadow overflow-hidden">
+    <div class="overflow-x-auto">
         <x-table
             :headers="$headers"
             :rows="$this->students"
             striped
+            hover
         >
             @scope('actions', $student)
-                <div class="flex gap-1">
+                <div class="flex items-center gap-1">
                     <x-button
                         icon="o-pencil"
                         class="btn-sm btn-ghost"
                         wire:click="editStudent({{ $student->id }})"
+                        aria-label="ویرایش"
                     />
 
                     <x-button
                         icon="o-trash"
                         class="btn-sm btn-ghost text-error"
                         wire:click="confirmDelete({{ $student->id }})"
+                        aria-label="حذف"
                     />
                 </div>
             @endscope
         </x-table>
     </div>
+</div>
 
     <div class="mt-4">
         {{ $this->students->links() }}
