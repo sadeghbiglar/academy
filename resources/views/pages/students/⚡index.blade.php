@@ -27,6 +27,9 @@ public string $edit_first_name = '';
 public string $edit_last_name = '';
 
 public string $edit_mobile = '';
+public ?int $deletingStudentId = null;
+
+public bool $showDeleteModal = false;
     protected function rules(): array
     {
         return [
@@ -84,16 +87,41 @@ public function updateStudent(): void
 
     $this->showEditModal = false;
 
+  $this->resetEditForm();
+
+    $this->success(
+        'ویرایش موفق',
+        'اطلاعات دانش‌آموز با موفقیت به‌روزرسانی شد.'
+    );
+}
+public function resetEditForm(): void
+{
     $this->reset([
         'editingStudentId',
         'edit_first_name',
         'edit_last_name',
         'edit_mobile',
     ]);
+}
+public function confirmDelete(int $id): void
+{
+    $this->deletingStudentId = $id;
+
+    $this->showDeleteModal = true;
+}
+public function deleteStudent(): void
+{
+    $student = Student::findOrFail($this->deletingStudentId);
+
+    $student->delete();
+
+    $this->showDeleteModal = false;
+
+    $this->deletingStudentId = null;
 
     $this->success(
-        'ویرایش موفق',
-        'اطلاعات دانش‌آموز با موفقیت به‌روزرسانی شد.'
+        'حذف موفق',
+        'دانش‌آموز با موفقیت حذف شد.'
     );
 }
     public function getStudents()
@@ -191,6 +219,38 @@ public function updateStudent(): void
     </x-slot:actions>
 
 </x-modal>
+<x-modal
+    wire:model="showDeleteModal"
+    title="حذف دانش‌آموز"
+    separator
+>
+    <div class="py-4">
+        <p class="text-base">
+            آیا از حذف این دانش‌آموز مطمئن هستید؟
+        </p>
+
+        <p class="mt-2 text-sm text-gray-500">
+            این عملیات قابل بازگشت نیست.
+        </p>
+    </div>
+
+    <x-slot:actions>
+
+        <x-button
+            label="انصراف"
+            wire:click="$set('showDeleteModal', false)"
+        />
+
+        <x-button
+            label="بله، حذف شود"
+            icon="o-trash"
+            class="btn-error"
+             wire:click="deleteStudent"
+        />
+
+    </x-slot:actions>
+
+</x-modal>
     <x-alert title="مدیریت دانش‌آموزان" description="در این بخش می‌توانید اطلاعات دانش‌آموزان آموزشگاه را مدیریت کنید."
         icon="o-information-circle" class="mb-6" />
 
@@ -240,6 +300,13 @@ public function updateStudent(): void
     icon="o-pencil"
     class="btn-sm btn-ghost"
     wire:click="editStudent({{ $student->id }})"
+/>
+</td>
+<td>
+    <x-button
+    icon="o-trash"
+    class="btn-sm btn-ghost text-error"
+    wire:click="confirmDelete({{ $student->id }})"
 />
 </td>
                         </tr>
