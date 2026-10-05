@@ -749,7 +749,7 @@ class extends Component {
                     <div>
                         <span class="text-sm opacity-60">تاریخ تولد</span>
                         <p class="font-medium">
-                            {{ $student->birth_date?->format('Y/m/d') ?? '—' }}
+                           {{ jalali_date($student->birth_date) ?? '—' }}
                         </p>
                     </div>
 
@@ -876,14 +876,14 @@ class extends Component {
                     <div>
                         <span class="text-sm opacity-60">تاریخ ثبت</span>
                         <p class="font-medium">
-                            {{ $student->created_at?->format('Y/m/d') ?? '—' }}
+                            {{ jalali_date($student->created_at) ?? '—' }}
                         </p>
                     </div>
 
                     <div>
                         <span class="text-sm opacity-60">آخرین ویرایش</span>
                         <p class="font-medium">
-                            {{ $student->updated_at?->format('Y/m/d') ?? '—' }}
+                            {{ jalali_date($student->updated_at) ?? '—' }}
                         </p>
                     </div>
 
@@ -959,11 +959,11 @@ class extends Component {
                     @endscope
 
                     @scope('cell_birth_date', $student)
-                    {{ $student->birth_date?->format('Y/m/d') ?? '—' }}
+                    {{ jalali_date($student->birth_date) ?? '—' }}
                     @endscope
 
                     @scope('cell_created_at', $student)
-                    {{ $student->created_at?->format('Y/m/d') ?? '—' }}
+                    {{ jalali_date($student->created_at) ?? '—' }}
                     @endscope
                     @scope('actions', $student)
                     <div class="flex items-center gap-1">
