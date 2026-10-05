@@ -87,7 +87,10 @@ class extends Component {
             'last_name' => ['required', 'string', 'min:2', 'max:50'],
             'national_code' => ['required', 'string', 'size:10'],
             'father_name' => ['required', 'string', 'min:2', 'max:50'],
-            'birth_date' => ['required', 'date'],
+            'birth_date' => [
+                'required',
+                'regex:/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/',
+            ],
             'gender' => ['required', 'in:male,female'],
 
             'mobile' => ['required', 'string', 'regex:/^09[0-9]{9}$/'],
@@ -111,7 +114,7 @@ class extends Component {
             'last_name' => $this->last_name,
             'national_code' => $this->national_code,
             'father_name' => $this->father_name,
-            'birth_date' => $this->birth_date,
+            'birth_date' => miladi_date($this->birth_date),
             'gender' => $this->gender,
 
             'mobile' => $this->mobile,
@@ -160,7 +163,7 @@ class extends Component {
         $this->edit_last_name = $student->last_name;
         $this->edit_national_code = $student->national_code ?? '';
         $this->edit_father_name = $student->father_name ?? '';
-        $this->edit_birth_date = $student->birth_date?->format('Y-m-d') ?? '';
+        $this->edit_birth_date = jalali_date($student->birth_date) ?? '';
         $this->edit_gender = $student->gender ?? '';
 
         // اطلاعات تماس
@@ -187,7 +190,10 @@ class extends Component {
             'edit_last_name' => ['required', 'string', 'min:2', 'max:50'],
             'edit_national_code' => ['required', 'string', 'size:10'],
             'edit_father_name' => ['required', 'string', 'min:2', 'max:50'],
-            'edit_birth_date' => ['required', 'date'],
+            'edit_birth_date' => [
+                'required',
+                'regex:/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/',
+            ],
             'edit_gender' => ['required', 'in:male,female'],
 
             'edit_mobile' => ['required', 'string', 'regex:/^09[0-9]{9}$/'],
@@ -210,7 +216,7 @@ class extends Component {
             'last_name' => $this->edit_last_name,
             'national_code' => $this->edit_national_code,
             'father_name' => $this->edit_father_name,
-            'birth_date' => $this->edit_birth_date,
+            'birth_date' => miladi_date($this->edit_birth_date),
             'gender' => $this->edit_gender,
 
             'mobile' => $this->edit_mobile,
@@ -374,10 +380,10 @@ class extends Component {
 
                     <x-input
                         label="تاریخ تولد"
-                        type="date"
+                        type="text"
                         wire:model="birth_date"
+                        placeholder="1400/05/12"
                         error="birth_date" />
-
                     <x-select
                         label="جنسیت"
                         wire:model="gender"
@@ -536,8 +542,9 @@ class extends Component {
 
                     <x-input
                         label="تاریخ تولد"
-                        type="date"
+                        type="text"
                         wire:model="edit_birth_date"
+                        placeholder="1400/05/12"
                         error="edit_birth_date" />
 
                     <x-select
@@ -749,7 +756,7 @@ class extends Component {
                     <div>
                         <span class="text-sm opacity-60">تاریخ تولد</span>
                         <p class="font-medium">
-                           {{ jalali_date($student->birth_date) ?? '—' }}
+                            {{ jalali_date($student->birth_date) ?? '—' }}
                         </p>
                     </div>
 
@@ -985,7 +992,7 @@ class extends Component {
                             aria-label="حذف" />
                     </div>
                     @endscope
-                   
+
                 </x-table>
             </div>
         </div>
