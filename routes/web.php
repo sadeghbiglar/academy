@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 // Route::livewire('/students', 'pages::students.index');
 
 Route::middleware('auth')->group(function () {
-    Route::livewire('/', 'pages::users.index');
+    Route::livewire('/', 'pages::users.index')
+        ->middleware('can:manage-users');
     Route::livewire('/students', 'pages::students.index');
 });
