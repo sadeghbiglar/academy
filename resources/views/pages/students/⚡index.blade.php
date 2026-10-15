@@ -87,10 +87,17 @@ class extends Component {
             'last_name' => ['required', 'string', 'min:2', 'max:50'],
             'national_code' => ['required', 'string', 'size:10'],
             'father_name' => ['required', 'string', 'min:2', 'max:50'],
+
             'birth_date' => [
                 'required',
                 'regex:/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/',
+                function ($attribute, $value, $fail) {
+                    if (! valid_jalali_date($value)) {
+                        $fail('تاریخ تولد واردشده معتبر نیست.');
+                    }
+                },
             ],
+
             'gender' => ['required', 'in:male,female'],
 
             'mobile' => ['required', 'string', 'regex:/^09[0-9]{9}$/'],
@@ -190,10 +197,17 @@ class extends Component {
             'edit_last_name' => ['required', 'string', 'min:2', 'max:50'],
             'edit_national_code' => ['required', 'string', 'size:10'],
             'edit_father_name' => ['required', 'string', 'min:2', 'max:50'],
+
             'edit_birth_date' => [
                 'required',
                 'regex:/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}$/',
+                function ($attribute, $value, $fail) {
+                    if (! valid_jalali_date($value)) {
+                        $fail('تاریخ تولد واردشده معتبر نیست.');
+                    }
+                },
             ],
+
             'edit_gender' => ['required', 'in:male,female'],
 
             'edit_mobile' => ['required', 'string', 'regex:/^09[0-9]{9}$/'],

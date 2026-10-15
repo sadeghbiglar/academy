@@ -25,3 +25,31 @@ if (! function_exists('miladi_date')) {
             ->format($format);
     }
 }
+
+if (! function_exists('valid_jalali_date')) {
+    function valid_jalali_date(?string $date): bool
+    {
+        if (! $date || ! preg_match('/^([0-9]{4})\/([0-9]{2})\/([0-9]{2})$/', $date, $matches)) {
+            return false;
+        }
+
+        $year = (int) $matches[1];
+        $month = (int) $matches[2];
+        $day = (int) $matches[3];
+
+        if ($month < 1 || $month > 12 || $day < 1) {
+            return false;
+        }
+
+        try {
+            $parsedDate = Jalalian::fromFormat(
+                'Y/m/d',
+                sprintf('%04d/%02d/01', $year, $month)
+            );
+
+            return $day <= $parsedDate->getMonthDays();
+        } catch (\Throwable $exception) {
+            return false;
+        }
+    }
+}
