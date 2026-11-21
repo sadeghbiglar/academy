@@ -44,8 +44,8 @@ class Enrollment extends Model
 public function getTotalPaidAttribute(): int
 {
     return (int) $this->payments()
-        ->sum('cash_amount') + (int) $this->payments()
-        ->sum('card_amount');
+        ->selectRaw('SUM(cash_amount + card_amount) as total')
+        ->value('total');
 }
 public function getPayableAmountAttribute(): int
 {

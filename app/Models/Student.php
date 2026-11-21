@@ -24,6 +24,7 @@ class Student extends Model
         'city',
         'address',
         'postal_code',
+        'photo',
     ];
     protected function casts(): array
     {

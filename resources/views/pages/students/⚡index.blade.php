@@ -6,11 +6,14 @@ use Livewire\Attributes\Layout;
 use Mary\Traits\Toast;
 use Livewire\WithPagination;
 use Livewire\Attributes\Computed;
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
 
 new #[Layout('layouts::academy')]
 class extends Component {
     use Toast;
     use WithPagination;
+    use WithFileUploads;
     public string $title = 'دانش‌آموزان آموزشگاه';
 
     public string $search = '';
@@ -22,7 +25,7 @@ class extends Component {
     public string $father_name = '';
     public string $birth_date = '';
     public string $gender = '';
-
+    public $photo;
     // اطلاعات تماس
     public string $mobile = '';
     public string $phone = '';
@@ -51,7 +54,7 @@ class extends Component {
     public string $edit_father_name = '';
     public string $edit_birth_date = '';
     public string $edit_gender = '';
-
+    public $edit_photo;
     // اطلاعات تماس
     public string $edit_mobile = '';
     public string $edit_phone = '';
@@ -111,11 +114,13 @@ class extends Component {
             'city' => ['required', 'string', 'max:50'],
             'address' => ['required', 'string', 'max:1000'],
             'postal_code' => ['nullable', 'string', 'size:10'],
+            'photo' => ['nullable', 'image', 'max:2048'],
         ];
     }
     public function saveStudent()
     {
         $this->validate();
+        $photoPath = $this->photo?->store('students', 'public');
         Student::create([
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
@@ -135,6 +140,7 @@ class extends Component {
             'city' => $this->city,
             'address' => $this->address,
             'postal_code' => $this->postal_code,
+            'photo' => $photoPath,
         ]);
         $this->reset([
             'first_name',
@@ -152,6 +158,7 @@ class extends Component {
             'city',
             'address',
             'postal_code',
+            'photo',
         ]);
         $this->showCreateModal = false;
         $this->success(
@@ -164,7 +171,7 @@ class extends Component {
         $student = Student::findOrFail($id);
 
         $this->editingStudentId = $student->id;
-
+        $this->edit_photo = null;
         // اطلاعات هویتی
         $this->edit_first_name = $student->first_name;
         $this->edit_last_name = $student->last_name;
@@ -221,10 +228,13 @@ class extends Component {
             'edit_city' => ['required', 'string', 'max:50'],
             'edit_address' => ['required', 'string', 'max:1000'],
             'edit_postal_code' => ['nullable', 'string', 'size:10'],
+            'edit_photo' => ['nullable', 'image', 'max:2048'],
         ]);
 
         $student = Student::findOrFail($this->editingStudentId);
+        $oldPhotoPath = $student->photo;
 
+        $newPhotoPath = $this->edit_photo?->store('students', 'public');
         $student->update([
             'first_name' => $this->edit_first_name,
             'last_name' => $this->edit_last_name,
@@ -244,8 +254,11 @@ class extends Component {
             'city' => $this->edit_city,
             'address' => $this->edit_address,
             'postal_code' => $this->edit_postal_code,
+            'photo' => $newPhotoPath ?? $oldPhotoPath,
         ]);
-
+        if ($newPhotoPath && $oldPhotoPath) {
+            Storage::disk('public')->delete($oldPhotoPath);
+        }
         $this->showEditModal = false;
 
         $this->resetEditForm();
@@ -278,6 +291,7 @@ class extends Component {
             'edit_city',
             'edit_address',
             'edit_postal_code',
+            'edit_photo',
         ]);
     }
     public function confirmDelete(int $id): void
@@ -289,9 +303,11 @@ class extends Component {
     public function deleteStudent(): void
     {
         $student = Student::findOrFail($this->deletingStudentId);
-
+        $photoPath = $student->photo;
         $student->delete();
-
+        if ($photoPath) {
+            Storage::disk('public')->delete($photoPath);
+        }
         $this->showDeleteModal = false;
 
         $this->deletingStudentId = null;
@@ -409,7 +425,33 @@ class extends Component {
                         option-label="name"
                         placeholder="انتخاب جنسیت"
                         error="gender" />
+                    <div class="md:col-span-2">
+                        <label class="label">
+                            <span class="label-text">تصویر دانش‌آموز</span>
+                        </label>
 
+                        <input
+                            type="file"
+                            wire:model="photo"
+                            accept="image/*"
+                            class="file-input file-input-bordered w-full" />
+
+                        @error('photo')
+                        <span class="text-error text-sm">{{ $message }}</span>
+                        @enderror
+
+                        <div wire:loading wire:target="photo" class="text-sm text-info">
+                            در حال بارگذاری تصویر...
+                        </div>
+                    </div>
+                    @if ($photo)
+                    <div class="mt-3">
+                        <img
+                            src="{{ $photo->temporaryUrl() }}"
+                            alt="پیش‌نمایش تصویر دانش‌آموز"
+                            class="w-24 h-24 rounded-full object-cover border" />
+                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -572,7 +614,32 @@ class extends Component {
                         option-label="name"
                         placeholder="انتخاب جنسیت"
                         error="edit_gender" />
+                    <div class="md:col-span-2">
+                        <label class="label">
+                            <span class="label-text">تصویر جدید دانش‌آموز</span>
+                        </label>
 
+                        <input
+                            type="file"
+                            wire:model="edit_photo"
+                            accept="image/*"
+                            class="file-input file-input-bordered w-full" />
+
+                        @error('edit_photo')
+                        <span class="text-error text-sm">{{ $message }}</span>
+                        @enderror
+
+                        <div wire:loading wire:target="edit_photo" class="text-sm text-info">
+                            در حال بارگذاری تصویر...
+                        </div>
+
+                        @if ($edit_photo)
+                        <img
+                            src="{{ $edit_photo->temporaryUrl() }}"
+                            alt="پیش‌نمایش تصویر جدید"
+                            class="w-24 h-24 rounded-full object-cover border mt-3" />
+                        @endif
+                    </div>
                 </div>
             </div>
 
