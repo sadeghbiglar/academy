@@ -83,6 +83,12 @@ class extends Component {
 
         $this->showDetailsModal = true;
     }
+    #[Computed]
+    public function viewingStudent()
+    {
+        return Student::with('enrollments.course.teacher')
+            ->find($this->viewingStudentId);
+    }
     protected function rules(): array
     {
         return [
@@ -790,9 +796,7 @@ class extends Component {
         separator
         class="backdrop-blur">
         @php
-        $student = $viewingStudentId
-        ? \App\Models\Student::find($viewingStudentId)
-        : null;
+        $student = $this->viewingStudent;
         @endphp
 
         @if ($student)
@@ -952,7 +956,62 @@ class extends Component {
 
                 </div>
             </div>
+            {{-- دوره‌های ثبت‌نام‌شده --}}
+            <div>
+                <h3 class="text-base font-bold mb-4">
+                    دوره‌های ثبت‌نام‌شده
+                </h3>
 
+                @forelse ($student->enrollments as $enrollment)
+                <div class="border rounded-lg p-4 mb-3">
+
+                    <div class="font-bold">
+                        {{ $enrollment->course->title }}
+                    </div>
+
+                    <div class="text-sm opacity-70 mt-2">
+                        مدرس:
+                        {{ $enrollment->course->teacher->first_name }}
+                        {{ $enrollment->course->teacher->last_name }}
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mt-4 text-sm">
+
+                        <div>
+                            <span class="opacity-60">شهریه:</span>
+                            <p class="font-medium">
+                                {{ number_format($enrollment->tuition_amount) }} تومان
+                            </p>
+                        </div>
+
+                        <div>
+                            <span class="opacity-60">تخفیف:</span>
+                            <p class="font-medium">
+                                {{ number_format($enrollment->discount_amount) }} تومان
+                            </p>
+                        </div>
+
+                        <div>
+                            <span class="opacity-60">تاریخ ثبت‌نام:</span>
+                            <p class="font-medium">
+                                {{ jalali_date($enrollment->enrolled_at) ?? '—' }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <span class="opacity-60">وضعیت:</span>
+                            <p class="font-medium">
+                                {{ $enrollment->status }}
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+                @empty
+                <p class="text-sm opacity-60">
+                    این دانش‌آموز هنوز در هیچ دوره‌ای ثبت‌نام نکرده است.
+                </p>
+                @endforelse
+            </div>
             {{-- اطلاعات سیستم --}}
             <div>
                 <h3 class="text-base font-bold mb-4">
